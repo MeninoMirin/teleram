@@ -1,11 +1,5 @@
-import os
-
-TOKEN = os.getenv("BOT_TOKEN")
-
-def main():
-    application = ApplicationBuilder().token(TOKEN).build()
-    # O restante do código continua o mesmo...
 import logging
+import os
 from telegram import Update, ChatMember, ChatMemberUpdated
 from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, filters, ContextTypes, ChatMemberHandler
 
@@ -20,6 +14,9 @@ perguntas_respostas = [
     {"pergunta": "Quem escreveu 'Dom Quixote'?", "resposta": "Miguel de Cervantes"}
 ]
 
+# Frases para reconhecimento de saudação
+saudacoes = ['oi', 'ola', 'olá', 'bom dia', 'boa tarde', 'boa noite']
+
 # Função para enviar saudação a novos membros
 async def dar_boas_vindas(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     chat_member: ChatMemberUpdated = update.chat_member
@@ -29,17 +26,19 @@ async def dar_boas_vindas(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
             text=f"Bem-vindo, {chat_member.new_chat_member.user.first_name}!"
         )
 
-# Função para enviar perguntas no privado
+# Função para enviar perguntas no privado ou quando receber uma saudação
 async def enviar_perguntas(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     user_id = update.message.from_user.id
     chat_type = update.message.chat.type
-    
-    # Checar se a conversa é privada
-    if chat_type == "private":
-        for item in perguntas_respostas:
-            pergunta = item["pergunta"]
-            resposta = item["resposta"]
-            await update.message.reply_text(f"Pergunta: {pergunta}\nResposta: {resposta}")
+    message_text = update.message.text.lower()  # Para comparar com saudações em minúsculas
+
+    # Checar se a mensagem contém uma saudação
+    if any(saudacao in message_text for saudacao in saudacoes):
+        if chat_type == "private" or chat_type == "group":
+            for item in perguntas_respostas:
+                pergunta = item["pergunta"]
+                resposta = item["resposta"]
+                await update.message.reply_text(f"Pergunta: {pergunta}\nResposta: {resposta}")
 
 # Comando /start
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -47,12 +46,15 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
 # Função principal do bot
 def main():
-    application = ApplicationBuilder().token('SEU_TOKEN_AQUI').build()
+    # Pegar o token da variável de ambiente
+    TOKEN = os.getenv("BOT_TOKEN")
+
+    application = ApplicationBuilder().token(TOKEN).build()
 
     # Handlers para comandos e eventos
     application.add_handler(CommandHandler("start", start))
     
-    # Handler para enviar perguntas no privado
+    # Handler para enviar perguntas no privado e para saudações
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, enviar_perguntas))
     
     # Handler para monitorar novos membros no grupo/canal
