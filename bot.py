@@ -12,6 +12,12 @@ def welcome(update: Update, context: CallbackContext) -> None:
 def goodbye(update: Update, context: CallbackContext) -> None:
     update.message.reply_text(f"Volte sempre, {update.message.left_chat_member.first_name}!")
 
+# Função que responde "Oi"
+def respond_oi(update: Update, context: CallbackContext) -> None:
+    message = update.message.text.lower()
+    if message == "oi":
+        update.message.reply_text("Oi! Como vai?")
+
 def main():
     token = os.getenv("TELEGRAM_TOKEN")
     updater = Updater(token)
@@ -23,6 +29,9 @@ def main():
 
     # Manipulador para membros saindo do grupo
     dispatcher.add_handler(MessageHandler(Filters.status_update.left_chat_member, goodbye))
+
+    # Manipulador para responder "Oi"
+    dispatcher.add_handler(MessageHandler(Filters.text & Filters.regex(r'(?i)\boi\b'), respond_oi))
 
     # Inicia o bot
     updater.start_polling()
