@@ -1,16 +1,27 @@
-from telegram.ext import Updater, CommandHandler
+from telegram.ext import Updater, MessageHandler, Filters
 
-# Função que o bot executa quando alguém usa o comando /start
-def start(update, context):
-    update.message.reply_text("Olá! Eu sou o seu bot do Telegram.")
+# Função para dar boas-vindas quando alguém entra no grupo/canal
+def boas_vindas(update, context):
+    for member in update.message.new_chat_members:
+        update.message.reply_text(f"Bem-vindo(a), {member.first_name}!")
+
+# Função para dizer adeus quando alguém sai do grupo/canal
+def despedida(update, context):
+    if update.message.left_chat_member:
+        update.message.reply_text(f"Adeus, {update.message.left_chat_member.first_name}. Volte sempre!")
 
 def main():
-    # Coloque seu token aqui
-    updater = Updater("7359248793:AAEOyPPaHPZvEICuHXtzlgViUO3VP-Ubv7U", use_context=True)
+    # Coloque o seu token aqui
+    TOKEN = "7359248793:AAEOyPPaHPZvEICuHXtzlgViUO3VP-Ubv7U"
+    updater = Updater(TOKEN, use_context=True)
 
-    # Adiciona o comando /start ao bot
     dp = updater.dispatcher
-    dp.add_handler(CommandHandler("start", start))
+
+    # Adiciona o handler para novas entradas no grupo/canal
+    dp.add_handler(MessageHandler(Filters.status_update.new_chat_members, boas_vindas))
+
+    # Adiciona o handler para saídas do grupo/canal
+    dp.add_handler(MessageHandler(Filters.status_update.left_chat_member, despedida))
 
     # Inicia o bot
     updater.start_polling()
