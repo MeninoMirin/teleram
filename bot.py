@@ -34,6 +34,9 @@ def main():
     # Manipulador para responder "Oi"
     application.add_handler(MessageHandler(filters.TEXT & filters.Regex(r'(?i)\boi\b'), respond_oi))
 
+    # Log de inicialização
+    print("Bot iniciado com sucesso! Aguardando interações...")
+
     # Inicia o bot
     application.run_polling()
 
