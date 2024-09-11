@@ -1,6 +1,6 @@
 from telegram.ext import Updater, MessageHandler, Filters
 
-# Função para dar boas-vindas quando alguém entra no grupo/canal
+# Função para dar boas-vindas quando alguém colar no nosso grupo/canal
 def boas_vindas(update, context):
     for member in update.message.new_chat_members:
         update.message.reply_text(f"Bem-vindo(a), {member.first_name}!")
