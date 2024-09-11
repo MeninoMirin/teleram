@@ -1,41 +1,37 @@
 import os
 from telegram import Update
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
-from telegram.ext import CallbackContext
+from telegram.ext import Application, CommandHandler, MessageHandler, filters
 
 # Função de boas-vindas
-def welcome(update: Update, context: CallbackContext) -> None:
+async def welcome(update: Update, context) -> None:
     for member in update.message.new_chat_members:
-        update.message.reply_text(f"Bem-vindo(a), {member.first_name}! :)")
+        await update.message.reply_text(f"Bem-vindo(a), {member.first_name}! :)")
 
 # Função de despedida
-def goodbye(update: Update, context: CallbackContext) -> None:
-    update.message.reply_text(f"Volte sempre, {update.message.left_chat_member.first_name}!")
+async def goodbye(update: Update, context) -> None:
+    await update.message.reply_text(f"Volte sempre, {update.message.left_chat_member.first_name}!")
 
 # Função que responde "Oi"
-def respond_oi(update: Update, context: CallbackContext) -> None:
+async def respond_oi(update: Update, context) -> None:
     message = update.message.text.lower()
     if message == "oi":
-        update.message.reply_text("Oi! Como vai?")
+        await update.message.reply_text("Oi! Como vai?")
 
 def main():
     token = os.getenv("TELEGRAM_TOKEN")
-    updater = Updater(token)
-
-    dispatcher = updater.dispatcher
+    application = Application.builder().token(token).build()
 
     # Manipulador para membros entrando no grupo
-    dispatcher.add_handler(MessageHandler(Filters.status_update.new_chat_members, welcome))
+    application.add_handler(MessageHandler(filters.StatusUpdate.NEW_CHAT_MEMBERS, welcome))
 
     # Manipulador para membros saindo do grupo
-    dispatcher.add_handler(MessageHandler(Filters.status_update.left_chat_member, goodbye))
+    application.add_handler(MessageHandler(filters.StatusUpdate.LEFT_CHAT_MEMBER, goodbye))
 
     # Manipulador para responder "Oi"
-    dispatcher.add_handler(MessageHandler(Filters.text & Filters.regex(r'(?i)\boi\b'), respond_oi))
+    application.add_handler(MessageHandler(filters.TEXT & filters.Regex(r'(?i)\boi\b'), respond_oi))
 
     # Inicia o bot
-    updater.start_polling()
-    updater.idle()
+    application.run_polling()
 
 if __name__ == '__main__':
     main()
