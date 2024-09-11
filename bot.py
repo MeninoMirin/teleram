@@ -21,6 +21,11 @@ async def respond_oi(update: Update, context) -> None:
         if message == "oi":
             await update.message.reply_text("Oi! Como vai?")
 
+# Função que responde ao comando /start
+async def start(update: Update, context) -> None:
+    await update.message.reply_text("Bot está funcionando e pronto para interagir!")
+    print("Bot respondeu ao comando /start")
+
 def main():
     token = os.getenv("TELEGRAM_TOKEN")
     application = Application.builder().token(token).build()
@@ -33,6 +38,9 @@ def main():
 
     # Manipulador para responder "Oi"
     application.add_handler(MessageHandler(filters.TEXT & filters.Regex(r'(?i)\boi\b'), respond_oi))
+
+    # Manipulador para o comando /start
+    application.add_handler(CommandHandler('start', start))
 
     # Log de inicialização
     print("Bot iniciado com sucesso! Aguardando interações...")
