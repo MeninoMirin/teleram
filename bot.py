@@ -6,10 +6,12 @@ from telegram.ext import Application, CommandHandler, MessageHandler, filters
 async def welcome(update: Update, context) -> None:
     for member in update.message.new_chat_members:
         await update.message.reply_text(f"Bem-vindo(a), {member.first_name}! :)")
+        print(f"Novo membro adicionado: {member.first_name}")
 
 # Função de despedida
 async def goodbye(update: Update, context) -> None:
     await update.message.reply_text(f"Volte sempre, {update.message.left_chat_member.first_name}!")
+    print(f"Membro saiu: {update.message.left_chat_member.first_name}")
 
 # Função que responde "Oi"
 async def respond_oi(update: Update, context) -> None:
