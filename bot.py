@@ -10,14 +10,16 @@ async def welcome(update: Update, context) -> None:
 
 # Função de despedida
 async def goodbye(update: Update, context) -> None:
-    await update.message.reply_text(f"Volte sempre, {update.message.left_chat_member.first_name}!")
-    print(f"Membro saiu: {update.message.left_chat_member.first_name}")
+    if update.message.left_chat_member:
+        await update.message.reply_text(f"Volte sempre, {update.message.left_chat_member.first_name}!")
+        print(f"Membro saiu: {update.message.left_chat_member.first_name}")
 
 # Função que responde "Oi"
 async def respond_oi(update: Update, context) -> None:
-    message = update.message.text.lower()
-    if message == "oi":
-        await update.message.reply_text("Oi! Como vai?")
+    if update.message and update.message.text:  # Verifica se a mensagem não é None
+        message = update.message.text.lower()
+        if message == "oi":
+            await update.message.reply_text("Oi! Como vai?")
 
 def main():
     token = os.getenv("TELEGRAM_TOKEN")
